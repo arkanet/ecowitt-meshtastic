@@ -11,7 +11,11 @@ import paho.mqtt.client as mqtt
 # =========================
 # CONFIG
 # =========================
+
+#LOCATION uses Google's "plus code" encoding ex: https://plus.codes/8FHJVHR9+RQ
 LOCATION = "8FHJVHR9+VM"
+
+#WEB_PORT is defined in EcoWitt app
 WEB_PORT = 8080
 
 MQTT_BROKER = "localhost"
