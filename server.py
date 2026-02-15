@@ -130,6 +130,7 @@ DASHBOARD_HTML = """
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ecowitt Dashboard</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -137,26 +138,27 @@ DASHBOARD_HTML = """
 body { background-color: #111; color: #eee; }
 .card { margin: 10px; background-color: #222; color: #eee; }
 canvas { background-color: #222; color: #eee; }
+.chart-container { position: relative; height: 300px; width: 100%; background-color: #222; border-radius: 12px; padding: 10px; border: 1px solid #333; }
 </style>
 </head>
 <body>
-<div class="container">
+<div class="container-fluid px-3 px-md-5">
 <h1 class="my-4">Ecowitt Dashboard</h1>
 
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-12 col-md-4">
     <div class="card p-3 text-light">
       <h5>Località / Ora / Temp</h5>
       <div id="card1">Caricamento...</div>
     </div>
   </div>
-  <div class="col-md-4">
+  <div class="col-12 col-md-4">
     <div class="card p-3 text-light">
       <h5>Vento / Pioggia</h5>
       <div id="card2">Caricamento...</div>
     </div>
   </div>
-  <div class="col-md-4">
+  <div class="col-12 col-md-4">
     <div class="card p-3 text-light">
       <h5>Pressione / Sole</h5>
       <div id="card3">Caricamento...</div>
@@ -166,19 +168,27 @@ canvas { background-color: #222; color: #eee; }
 
 <h3 class="mt-4">Grafici</h3>
 <div class="row">
-  <div class="col-md-6">
-    <canvas id="tempChart"></canvas>
+  <div class="col-12 col-lg-6">
+    <div class="chart-container">
+      <canvas id="tempChart"></canvas>
+    </div>
   </div>
-  <div class="col-md-6">
-    <canvas id="windChart"></canvas>
+  <div class="col-12 col-lg-6">
+    <div class="chart-container">
+      <canvas id="windChart"></canvas>
+    </div>
   </div>
 </div>
 <div class="row mt-3">
-  <div class="col-md-6">
-    <canvas id="rainChart"></canvas>
+  <div class="col-12 col-lg-6">
+    <div class="chart-container">
+      <canvas id="rainChart"></canvas>
+    </div>
   </div>
-  <div class="col-md-6">
-    <canvas id="sunChart"></canvas>
+  <div class="col-12 col-lg-6">
+    <div class="chart-container">
+      <canvas id="sunChart"></canvas>
+    </div>
   </div>
 </div>
 </div>
@@ -186,6 +196,7 @@ canvas { background-color: #222; color: #eee; }
 <script>
 let tempData = [];
 let windData = [];
+let windDirData = [];
 let rainData = [];
 let sunData = [];
 let labels = [];
@@ -196,11 +207,7 @@ const tempChart = new Chart(document.getElementById("tempChart"), {
     options:{scales:{y:{beginAtZero:false},x:{ticks:{color:"#eee"}},y:{ticks:{color:"#eee"}}}}
 });
 
-const windChart = new Chart(document.getElementById("windChart"), {
-    type: "line",
-    data: { labels, datasets:[{label:"Vento km/h", data: windData, borderColor:"blue", backgroundColor:"rgba(0,0,255,0.2)"}] },
-    options:{scales:{y:{beginAtZero:true},x:{ticks:{color:"#eee"}},y:{ticks:{color:"#eee"}}}}
-});
+const windChart=new Chart(document.getElementById("windChart"),{type:"line",data:{labels,datasets:[{label:"Vento km/h",data:windData,borderColor:"blue",backgroundColor:"rgba(0,0,255,0.2)",borderWidth:2,tension:0.25,yAxisID:"yWind"},{label:"Direzione vento °",data:windDirData,borderColor:"cyan",backgroundColor:"rgba(0,255,255,0.2)",borderWidth:2,tension:0.25,yAxisID:"yDir"}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{labels:{color:"#eee"}}},scales:{x:{ticks:{color:"#eee"}},yWind:{type:"linear",position:"left",beginAtZero:true,ticks:{color:"#eee"}},yDir:{type:"linear",position:"right",min:0,max:360,ticks:{color:"#eee"},grid:{drawOnChartArea:false}}}}});
 
 const rainChart = new Chart(document.getElementById("rainChart"), {
     type: "line",
@@ -223,7 +230,8 @@ async function refreshData() {
             `${d.location}  ${d.time}  Temp: ${d.temperature}°C  Hum: ${d.humidity}%`;
 
         document.getElementById("card2").innerText =
-            `Vento: ${d.windspeed} km/h (${d.windcard})  Rain: ${d.rain} mm/h`;
+            `Vento: ${d.windspeed} km/h (${d.windcard}) Dir: ${d.winddir}°  Rain: ${d.rain} mm/h`;
+
 
         document.getElementById("card3").innerText =
             `Pressione: ${d.pressure} hPa  Sole: ${d.sunlight} W/m²`;
@@ -233,10 +241,11 @@ async function refreshData() {
         labels.push(t);
         tempData.push(d.temperature);
         windData.push(d.windspeed);
+        windDirData.push(d.winddir);
         rainData.push(d.rain);
         sunData.push(d.sunlight);
 
-        if(labels.length>20){ labels.shift(); tempData.shift(); windData.shift(); rainData.shift(); sunData.shift(); }
+        if(labels.length > 20){ labels.shift(); tempData.shift(); windData.shift(); windDirData.shift(); rainData.shift(); sunData.shift(); }
 
         tempChart.update();
         windChart.update();
