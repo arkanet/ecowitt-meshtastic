@@ -9,10 +9,7 @@ import meshtastic.serial_interface
 # =========================
 SERVER_API = "http://127.0.0.1:8080/api/latest"
 
-#SERIAL_PORT = "/dev/ttyACM0"
 SERIAL_PORT = "/dev/ttyUSB0"
-
-#meshtastic CHANNEL 0 is primary - from 1 to 7 is secondary
 CHANNEL_INDEX = 0
 
 LOGFILE = "./meshtastic_send.log"
@@ -73,7 +70,7 @@ def build_report(d):
 
     wind_cardinal = deg_to_cardinal(winddir)
 
-    # report meshtastic
+    # 4 righe
     report = (
         f"Map: {location}\n"
         f"{t}  T: {temperature:.1f}°C  H: {humidity:.0f}%\n"
@@ -107,3 +104,4 @@ if __name__ == "__main__":
 
     except Exception as e:
         logger.error(f"[ERROR] Invio fallito: {e}")
+
