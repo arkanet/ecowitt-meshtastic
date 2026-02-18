@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import time
 import json
 import logging
@@ -27,6 +28,14 @@ MQTT_TOPIC = "ecowitt/data"
 LOGFILE = "./ecowitt.log"
 
 # =========================
+# PATHS (ABSOLUTE: fixes dashboard not updating when run as service)
+# =========================
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # ~/ecowitt_server
+INDEX_PATH = os.path.join(BASE_DIR, "index.html")
+CSS_DIR = os.path.join(BASE_DIR, "css")
+JS_DIR = os.path.join(BASE_DIR, "js")
+
+# =========================
 # LOGGING
 # =========================
 logger = logging.getLogger("ecowitt_server")
@@ -41,7 +50,7 @@ console = logging.StreamHandler()
 console.setFormatter(formatter)
 logger.addHandler(console)
 
-logger.info("=== Ecowitt Server Avviato ===")
+logger.info("=== Ecowitt Server Started ===")
 
 # =========================
 # FLASK
@@ -56,15 +65,30 @@ data_lock = Lock()
 latest_data = {
     "location": LOCATION,
     "time": "--:--:--",
+
     "temperature": 0.0,
     "humidity": 0,
-    "windspeed": 0.0,
-    "winddir": 0,
+
+    "windspeed": 0.0,   # km/h
+    "winddir": 0.0,     # deg
+
+    # PRESSURE (from baromrelin) -> hPa in API
     "pressure": 0.0,
-    "sunlight": 0.0,
-    "sunlight24h": 0.0,
-    "rain": 0.0,
-    "rain24h": 0.0
+
+    # SOLAR
+    "solarradiation": 0.0,  # W/m² instant
+    "solardaily": 0.0,      # mapped from maxdailygust (as requested)
+    "uv": 0.0,
+
+    # RAIN (inches from GW1100)
+    "rainratein": 0.0,
+    "eventrainin": 0.0,
+    "hourlyrainin": 0.0,
+    "last24hrainin": 0.0,
+    "dailyrainin": 0.0,
+    "weeklyrainin": 0.0,
+    "monthlyrainin": 0.0,
+    "yearlyrainin": 0.0,
 }
 
 prev_pressure = None
@@ -88,13 +112,30 @@ def deg_to_cardinal(deg):
     dirs = ["N","NNE","NE","ENE","E","ESE","SE","SSE",
             "S","SSW","SW","WSW","W","WNW","NW","NNW"]
     try:
-        return dirs[int((deg + 11.25) / 22.5) % 16]
+        return dirs[int((float(deg) + 11.25) / 22.5) % 16]
     except:
         return "--"
 
 
+def inhg_to_hpa(inhg):
+    # 1 inHg = 33.8639 hPa
+    return float(inhg) * 33.8639
+
+
+def inch_to_mm(x):
+    return float(x) * 25.4
+
+
+def f_to_c(tempf):
+    return (float(tempf) - 32.0) * 5.0 / 9.0
+
+
+def mph_to_kmh(mph):
+    return float(mph) * 1.60934
+
+
 # =========================
-# PLUSCODE -> PLACE (as requested)
+# PLUSCODE -> PLACE
 # =========================
 def pluscode_to_place(pluscode):
     now = time.time()
@@ -106,7 +147,6 @@ def pluscode_to_place(pluscode):
         return "Unknown place"
 
     place = latlng_to_place(lat, lng)
-    # aggiorna cache
     place_cache["value"] = place
     place_cache["last_update"] = now
     return place
@@ -131,8 +171,7 @@ def latlng_to_place(lat, lng):
         req = urllib.request.Request(url, headers={"User-Agent": "ecowitt-meshtastic"})
         with urllib.request.urlopen(req, timeout=5) as resp:
             data = json.loads(resp.read())
-            display = data.get("display_name", "Unknown place")
-            return display
+            return data.get("display_name", "Unknown place")
     except:
         return "Unknown place"
 
@@ -142,16 +181,15 @@ def latlng_to_place(lat, lng):
 # =========================
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        logger.info(f"[MQTT] Connesso a {MQTT_BROKER}:{MQTT_PORT}")
+        logger.info(f"[MQTT] Connected to {MQTT_BROKER}:{MQTT_PORT}")
         client.subscribe(MQTT_TOPIC)
         logger.info(f"[MQTT] Subscribed: {MQTT_TOPIC}")
     else:
-        logger.error(f"[MQTT] Connessione fallita, codice: {rc}")
+        logger.error(f"[MQTT] Connection failed, code: {rc}")
 
 
 def on_message(client, userdata, msg):
-    global latest_data, prev_pressure
-
+    global latest_data
     try:
         payload = json.loads(msg.payload.decode(errors="ignore"))
 
@@ -159,6 +197,7 @@ def on_message(client, userdata, msg):
             latest_data["location"] = LOCATION
             latest_data["time"] = time.strftime("%H:%M:%S")
 
+            # keep compatibility if MQTT already publishes these in metric
             latest_data["temperature"] = safe_float(payload.get("temperature", latest_data["temperature"]))
             latest_data["humidity"] = int(safe_float(payload.get("humidity", latest_data["humidity"])))
 
@@ -167,16 +206,18 @@ def on_message(client, userdata, msg):
 
             latest_data["pressure"] = safe_float(payload.get("pressure", latest_data["pressure"]))
 
-            latest_data["sunlight"] = safe_float(payload.get("sunlight", latest_data["sunlight"]))
-            latest_data["sunlight24h"] = safe_float(payload.get("sunlight24h", latest_data["sunlight24h"]))
+            latest_data["solarradiation"] = safe_float(payload.get("solarradiation", latest_data["solarradiation"]))
+            latest_data["solardaily"] = safe_float(payload.get("solardaily", latest_data["solardaily"]))
+            latest_data["uv"] = safe_float(payload.get("uv", latest_data["uv"]))
 
-            latest_data["rain"] = safe_float(payload.get("rain", latest_data["rain"]))
-            latest_data["rain24h"] = safe_float(payload.get("rain24h", latest_data["rain24h"]))
+            for k in ["rainratein","eventrainin","hourlyrainin","last24hrainin","dailyrainin","weeklyrainin","monthlyrainin","yearlyrainin"]:
+                if k in payload:
+                    latest_data[k] = safe_float(payload.get(k, latest_data[k]))
 
-        logger.info(f"[MQTT] Dati aggiornati: {latest_data}")
+        logger.info(f"[MQTT] Updated data: {latest_data}")
 
     except Exception as e:
-        logger.error(f"[MQTT] Errore parsing messaggio: {e}")
+        logger.error(f"[MQTT] Error parsing message: {e}")
 
 
 # =========================
@@ -190,25 +231,25 @@ try:
     mqtt_client.connect(MQTT_BROKER, MQTT_PORT, 60)
     mqtt_client.loop_start()
 except Exception as e:
-    logger.error(f"[MQTT] Impossibile connettersi al broker: {e}")
+    logger.error(f"[MQTT] Cannot connect to broker: {e}")
 
 
 # =========================
-# STATIC ROUTES
+# STATIC ROUTES (ABSOLUTE)
 # =========================
 @app.route("/")
 def index():
-    return send_from_directory("../", "index.html")
+    return send_from_directory(BASE_DIR, "index.html")
 
 
 @app.route("/css/<path:filename>")
 def css_files(filename):
-    return send_from_directory("../css", filename)
+    return send_from_directory(CSS_DIR, filename)
 
 
 @app.route("/js/<path:filename>")
 def js_files(filename):
-    return send_from_directory("../js", filename)
+    return send_from_directory(JS_DIR, filename)
 
 
 # =========================
@@ -222,102 +263,98 @@ def api_latest():
         d = dict(latest_data)
 
     d["windcard"] = deg_to_cardinal(d.get("winddir", 0.0))
-
-    # pluscode -> place
     d["location_name"] = pluscode_to_place(d.get("location", LOCATION))
 
-    # trend pressione
+    # trend pressure (hPa)
     trend = "same"
     if prev_pressure is not None:
         if d["pressure"] > prev_pressure:
             trend = "up"
         elif d["pressure"] < prev_pressure:
             trend = "down"
-
     prev_pressure = d["pressure"]
     d["trend_pressure"] = trend
+
+    # also expose rain in mm for UI convenience (raw stays as *in)
+    d["rain_mm"] = {
+        "rainrate": round(inch_to_mm(d.get("rainratein", 0.0)), 2),      # mm/h
+        "eventrain": round(inch_to_mm(d.get("eventrainin", 0.0)), 2),
+        "hourlyrain": round(inch_to_mm(d.get("hourlyrainin", 0.0)), 2),
+        "last24hrain": round(inch_to_mm(d.get("last24hrainin", 0.0)), 2),
+        "dailyrain": round(inch_to_mm(d.get("dailyrainin", 0.0)), 2),
+        "weeklyrain": round(inch_to_mm(d.get("weeklyrainin", 0.0)), 2),
+        "monthlyrain": round(inch_to_mm(d.get("monthlyrainin", 0.0)), 2),
+        "yearlyrain": round(inch_to_mm(d.get("yearlyrainin", 0.0)), 2),
+    }
 
     return jsonify(d)
 
 
 # =========================
-# GW1100 UPLOAD (fallback)
+# GW1100 UPLOAD
 # =========================
 @app.route("/ecowitt", methods=["POST"])
 def ecowitt_upload():
     global latest_data
-
     try:
         form = request.form.to_dict()
-        # troubleshooting research real data
-        # uncommitt over
-        # logger.info(f"[GW1100 RAW FORM] {form}")
-
-	# use this for to do it
-        # tail -f ecowitt.log
-        # curl -X POST http://127.0.0.1:8080/ecowitt -d "tempf=68&humidity=55&windspeedmph=5&winddir=180&baromin=29.92&solarradiation=100&dailyrainin=1.5"
-        # curl http://127.0.0.1:8080/api/latest
-
         if not form:
-            logger.warning("[GW1100] POST vuoto o non form-urlencoded")
+            logger.warning("[GW1100] Empty POST or not form-urlencoded")
             return "NO DATA", 400
+
+        # logger.info(f"[GW1100 RAW FORM] {form}")  # enable if needed
 
         tempf = safe_float(form.get("tempf", 0))
         humidity = safe_float(form.get("humidity", 0))
+
         wind_mph = safe_float(form.get("windspeedmph", 0))
         winddir = safe_float(form.get("winddir", 0))
-        baromin = safe_float(form.get("baromin", 0))
-        solar = safe_float(form.get("solarradiation", 0))
-        # solar24h = safe_float(form.get("solarradiation24h", 0))
-        rain_rate_in = safe_float(form.get("rainrate", 0))
-        # rain_24h_in = safe_float(form.get("dailyrainin", 0))
 
-        # --- RAIN 24H / DAILY ---
-        rain_24h_in = safe_float(
-            form.get("dailyrainin") or
-            form.get("rain24hin") or
-            form.get("rain24h") or
-            0
-        )
+        # PRESSURE: baromrelin (inHg) -> hPa
+        baromrelin = safe_float(form.get("baromrelin", 0))
+        pressure_hpa = inhg_to_hpa(baromrelin)
 
-        rain_24h_mm = safe_float(
-            form.get("dailyrainmm") or
-            form.get("rain24hmm") or
-            0
-        )
+        # SOLAR instant + "daily" mapped to maxdailygust as requested
+        solarradiation = safe_float(form.get("solarradiation", 0))
+        solardaily = safe_float(form.get("maxdailygust", 0))
+        uv = safe_float(form.get("uv", 0))
 
-        # conversion inch > mm
-        if rain_24h_mm == 0 and rain_24h_in > 0:
-            rain_24h_mm = rain_24h_in * 25.4
-
-        # --- SUNLIGHT 24H ---
-        solar24h = safe_float(
-            form.get("solarradiation24h") or
-            form.get("solar24h") or
-            form.get("solarenergy") or
-            form.get("solarenergy24h") or
-            0
-        )
-
-        temperature_c = (tempf - 32.0) * 5.0 / 9.0
-        wind_kmh = wind_mph * 1.60934
-        pressure_hpa = baromin * 33.8639
-        rain_mm_per_hour = rain_rate_in * 25.4
-        rain_24h_mm = rain_24h_in * 25.4
+        # RAIN: correct keys (inches)
+        rainratein = safe_float(form.get("rainratein", 0))
+        eventrainin = safe_float(form.get("eventrainin", 0))
+        hourlyrainin = safe_float(form.get("hourlyrainin", 0))
+        last24hrainin = safe_float(form.get("last24hrainin", 0))
+        dailyrainin = safe_float(form.get("dailyrainin", 0))
+        weeklyrainin = safe_float(form.get("weeklyrainin", 0))
+        monthlyrainin = safe_float(form.get("monthlyrainin", 0))
+        yearlyrainin = safe_float(form.get("yearlyrainin", 0))
 
         with data_lock:
             latest_data["location"] = LOCATION
             latest_data["time"] = time.strftime("%H:%M:%S")
-            latest_data["temperature"] = round(temperature_c, 2)
-            latest_data["humidity"] = int(round(humidity, 0))
-            latest_data["windspeed"] = round(wind_kmh, 2)
-            latest_data["winddir"] = round(winddir, 1)
-            latest_data["pressure"] = round(pressure_hpa, 2)
-            latest_data["sunlight"] = round(solar, 1)
-            latest_data["sunlight24h"] = round(solar24h, 1)
-            latest_data["rain"] = round(rain_mm_per_hour, 2)
-            latest_data["rain24h"] = round(rain_24h_mm, 2)
 
+            latest_data["temperature"] = round(f_to_c(tempf), 2)
+            latest_data["humidity"] = int(round(humidity, 0))
+
+            latest_data["windspeed"] = round(mph_to_kmh(wind_mph), 2)
+            latest_data["winddir"] = round(winddir, 1)
+
+            latest_data["pressure"] = round(pressure_hpa, 2)
+
+            latest_data["solarradiation"] = round(solarradiation, 1)
+            latest_data["solardaily"] = round(solardaily, 1)
+            latest_data["uv"] = round(uv, 1)
+
+            latest_data["rainratein"] = round(rainratein, 4)
+            latest_data["eventrainin"] = round(eventrainin, 4)
+            latest_data["hourlyrainin"] = round(hourlyrainin, 4)
+            latest_data["last24hrainin"] = round(last24hrainin, 4)
+            latest_data["dailyrainin"] = round(dailyrainin, 4)
+            latest_data["weeklyrainin"] = round(weeklyrainin, 4)
+            latest_data["monthlyrainin"] = round(monthlyrainin, 4)
+            latest_data["yearlyrainin"] = round(yearlyrainin, 4)
+
+        # publish to mqtt (optional, but kept because it's in your original)
         mqtt_payload = json.dumps(latest_data)
         mqtt_client.publish(MQTT_TOPIC, mqtt_payload)
 
@@ -325,7 +362,7 @@ def ecowitt_upload():
         return "OK", 200
 
     except Exception as e:
-        logger.error(f"[GW1100] Errore: {e}")
+        logger.error(f"[GW1100] Error: {e}")
         return "ERROR", 500
 
 
@@ -333,6 +370,6 @@ def ecowitt_upload():
 # RUN
 # =========================
 if __name__ == "__main__":
-    logger.info(f"Server web in ascolto su porta {WEB_PORT}")
+    logger.info(f"Web server listening on port {WEB_PORT}")
+    logger.info(f"BASE_DIR = {BASE_DIR}")
     app.run(host="0.0.0.0", port=WEB_PORT, debug=False)
-

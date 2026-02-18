@@ -55,3 +55,43 @@ body {
 .trend-same {
   color: #aaa;
 }
+
+.bg-orange {
+  background-color: orange !important;
+  color: black !important;
+}
+
+.rain-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+  text-align: center;
+}
+
+.rain-grid-label {
+  font-size: 0.75rem;
+  color: #888;
+  font-weight: 600;
+}
+
+.rain-grid-value {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #eee;
+  padding: 6px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+  white-space: nowrap;
+}
+
+@media (max-width: 1200px) {
+  .rain-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .rain-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
