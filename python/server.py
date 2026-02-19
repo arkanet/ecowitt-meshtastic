@@ -77,7 +77,7 @@ latest_data = {
 
     # SOLAR
     "solarradiation": 0.0,  # W/m² instant
-    #"solardaily": 0.0,      # mapped from maxdailygust (as requested)
+    "solardaily": 0.0,      # mapped from maxdailygust (as requested)
     "uv": 0.0,
 
     # RAIN (inches from GW1100)
@@ -207,7 +207,7 @@ def on_message(client, userdata, msg):
             latest_data["pressure"] = safe_float(payload.get("pressure", latest_data["pressure"]))
 
             latest_data["solarradiation"] = safe_float(payload.get("solarradiation", latest_data["solarradiation"]))
-            #latest_data["solardaily"] = safe_float(payload.get("solardaily", latest_data["solardaily"]))
+            latest_data["solardaily"] = safe_float(payload.get("solardaily", latest_data["solardaily"]))
             latest_data["uv"] = safe_float(payload.get("uv", latest_data["uv"]))
 
             for k in ["rainratein","eventrainin","hourlyrainin","last24hrainin","dailyrainin","weeklyrainin","monthlyrainin","yearlyrainin"]:
@@ -316,7 +316,7 @@ def ecowitt_upload():
 
         # SOLAR instant + "daily" mapped to maxdailygust as requested
         solarradiation = safe_float(form.get("solarradiation", 0))
-        #solardaily = safe_float(form.get("maxdailygust", 0))
+        solardaily = safe_float(form.get("maxdailygust", 0))
         uv = safe_float(form.get("uv", 0))
 
         # RAIN: correct keys (inches)
@@ -342,7 +342,7 @@ def ecowitt_upload():
             latest_data["pressure"] = round(pressure_hpa, 2)
 
             latest_data["solarradiation"] = round(solarradiation, 1)
-            #latest_data["solardaily"] = round(solardaily, 1)
+            latest_data["solardaily"] = round(solardaily, 1)
             latest_data["uv"] = round(uv, 1)
 
             latest_data["rainratein"] = round(rainratein, 4)
