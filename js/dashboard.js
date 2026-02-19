@@ -192,7 +192,7 @@ async function refreshData() {
 
     // solar values
     document.getElementById("sunValue").innerText = `${Number(d.solarradiation || 0).toFixed(0)} W/m²`;
-    document.getElementById("sun24Value").innerText = `${Number(d.solardaily || 0).toFixed(1)}`;
+    // document.getElementById("sun24Value").innerText = `${Number(d.solardaily || 0).toFixed(1)}`;
     document.getElementById("sunBadge").className = `badge ${badgeColorSun(Number(d.solarradiation) || 0)}`;
     document.getElementById("sunBadge").innerText = "Realtime";
     document.getElementById("sun24Badge").className = `badge bg-secondary text-light`;
@@ -217,7 +217,7 @@ async function refreshData() {
     yearlyRainInData.push(Number(d.yearlyrainin) || 0);
 
     sunNowData.push(Number(d.solarradiation) || 0);
-    sunDailyData.push(Number(d.solardaily) || 0);
+    // sunDailyData.push(Number(d.solardaily) || 0);
     uvData.push(Number(d.uv) || 0);
 
     if (labels.length > 40) {
