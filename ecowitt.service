@@ -1,0 +1,26 @@
+[Unit]
+Description=Ecowitt GW1100 Dashboard Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/ecowitt-meshtastic
+
+ExecStart=/usr/bin/python3 /home/pi/ecowitt-meshtastic/python/server.py
+
+Restart=on-failure
+RestartSec=3
+
+Environment=PYTHONUNBUFFERED=1
+
+NoNewPrivileges=true
+PrivateTmp=true
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
