@@ -259,7 +259,7 @@ def db_insert_reading(d, ts):
       INSERT INTO readings (
         ts, location, temperature, humidity, windspeed, winddir, pressure, solarradiation, uv,
         rainratein, eventrainin, hourlyrainin, last24hrainin, dailyrainin, weeklyrainin, monthlyrainin, yearlyrainin
-      ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+      ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     """, (
         ts, d["location"], d["temperature"], d["humidity"], d["windspeed"], d["winddir"], d["pressure"], d["solarradiation"], d["uv"],
         d["rainratein"], d["eventrainin"], d["hourlyrainin"], d["last24hrainin"], d["dailyrainin"], d["weeklyrainin"], d["monthlyrainin"], d["yearlyrainin"]
