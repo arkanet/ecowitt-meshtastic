@@ -177,7 +177,24 @@ async function refresh() {
     setText("lastUpdate", `Latest update: ${d.time || "--:--:--"}`);
 
     setText("locationName", d.location_name || "Unknown place");
-    setText("locationPlus", d.location || "");
+
+    // pluscode + map (encode "+" as %2B for URL use)
+    const pluscode = (d.location || "").trim();
+    setText("locationPlus", pluscode);
+    const plusEnc = encodeURIComponent(pluscode); // "+" -> "%2B"
+
+    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${plusEnc}`;
+    const embedUrl = `https://www.google.com/maps?q=${plusEnc}&output=embed`;
+
+    const a = document.getElementById("locationMapLink");
+    if (a) a.href = mapUrl;
+
+    const iframe = document.getElementById("locationMap");
+    if (iframe && iframe.dataset.last !== plusEnc) {
+      iframe.src = embedUrl;
+      iframe.dataset.last = plusEnc;
+    }
+
     setText("timeValue", d.time || "--:--:--");
 
     const temp = Number(d.temperature || 0);

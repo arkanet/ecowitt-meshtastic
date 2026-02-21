@@ -27,13 +27,6 @@
         <h2 class="mb-0 text-light">
           <i class="fa-solid fa-cloud-sun me-2"></i>Ecowitt Dashboard
         </h2>
-        <div class="small text-secondary">Realtime push about ~15 sec</div>
-      </div>
-
-      <div class="mt-2 mt-md-0 text-end">
-        <div id="lastUpdate" class="badge bg-dark text-light px-3 py-2">
-          Latest update: --:--:--
-        </div>
       </div>
     </div>
 
@@ -41,20 +34,33 @@
     <div class="row g-3">
 
       <!-- LOCATION + TIME -->
-      <div class="col-8 col-md-6 col-xl-12">
+      <div class="col-12 col-md-6 col-xl-12">
         <div class="card ecocard">
           <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center text-light">
-              <div class="data-value" id="locationName">Roma, Roma Capitale, Lazio, Italia</div>
-              <div class="small text-secondary" id="locationPlus">8FHJVFRR+3W</div>
-              <span id="timeValue">22:08:01</span>
+
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center text-light gap-2">
+              <div class="d-flex flex-row align-items-center gap-3">
+                <div class="data-value" id="locationName">--</div>
+                <div class="text-secondary" id="locationPlus">--</div>
+                <div class="text-secondary">
+                  <i class="fa-solid fa-clock me-1"></i><span id="timeValue">--:--:--</span>
+                </div>
+              </div>
+              
+              <div class="map-wrap">
+                <iframe id="locationMap" title="Location Map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="--" data-last="--">
+                </iframe>
+              </div>
             </div>
+
+            <!-- MAP -->
+            
           </div>
         </div>
       </div>
 
       <!-- TEMP + HUM -->
-      <div class="col-12 col-md-6 col-xl-3">
+      <div class="col-12 col-md-6 col-xl-4">
         <div class="card ecocard">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
@@ -80,7 +86,7 @@
 
       <!-- WIND -->
 
-      <div class="col-12 col-md-6 col-xl-3">
+      <div class="col-12 col-md-6 col-xl-4">
         <div class="card ecocard">
           <div class="card-body">
             <div class="d-flex justify-content-between">
@@ -105,7 +111,7 @@
       </div><!-- container wind -->
 
       <!-- PRESSURE -->
-      <div class="col-12 col-md-6 col-xl-3">
+      <div class="col-12 col-md-6 col-xl-4">
         <div class="card ecocard">
           <div class="card-body">
             <div class="d-flex justify-content-center align-items-center">
@@ -233,7 +239,16 @@
         </div>
       </div>
     </div>
-
+    <!-- FOOTER -->
+    <div class="row g-3 mt-1">
+      <div class="card ecocard">
+        <div class="card-body">
+          <div class="text-center col-12 col-md-6 col-xl-12">
+            <h6><a class="text-decoration-none text-light" href="https://github.com/arkanet/ecowitt-meshtastic/">ArkaNet</a></h6>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="/vendor/bootstrap/bootstrap.bundle.min.js"></script>
