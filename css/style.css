@@ -67,5 +67,18 @@ body { background-color: #111; color: #eee; }
   height: 100%;
   background: #0f0f0f;
 }
+/* Sticky header */
+.dashboard-header {
+  position: sticky;
+  top: 0;
+  z-index: 1050;
+  background: rgba(15,15,15,0.95);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+/* Overlay */
+.dashboard-header + * {
+  margin-top: 0.75rem;
+}
 @media (max-width: 1200px) { .rain-grid { grid-template-columns: repeat(4, 1fr); } }
 @media (max-width: 768px) { .rain-grid { grid-template-columns: repeat(2, 1fr); } }
