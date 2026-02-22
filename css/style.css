@@ -41,21 +41,20 @@ body { background-color: #111; color: #eee; }
 /* rain grid */
 .rain-grid {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 6px;
   text-align: center;
 }
 .rain-grid-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: #888;
   font-weight: 700;
   text-transform: lowercase;
 }
 .rain-grid-value {
-  font-size: 1rem;
+  font-size: 0.75rem;
   font-weight: 800;
   color: #eee;
-  padding: 8px 6px;
   border-radius: 10px;
   background: rgba(255,255,255,0.05);
   white-space: nowrap;
