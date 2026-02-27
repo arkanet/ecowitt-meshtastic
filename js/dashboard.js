@@ -95,11 +95,25 @@ function makeLineChart(canvasId, datasets, scales) {
   return new Chart(document.getElementById(canvasId), {
     type: "line",
     data: { datasets },
+/* Dots yes */
+/*     options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      parsing: false,
+      plugins: { legend: { labels: { color: "#eee" } } },
+      scales
+    } */
+/* Dots no */
     options: {
       responsive: true,
       maintainAspectRatio: false,
       animation: false,
       parsing: false,
+      elements: {
+        point: { radius: 0, hoverRadius: 0 },
+        line: { borderWidth: 3 }
+      },
       plugins: { legend: { labels: { color: "#eee" } } },
       scales
     }
@@ -177,7 +191,7 @@ async function refresh() {
     setText("lastUpdate", `Latest update: ${d.time || "--:--:--"}`);
 
     setText("locationName", d.location_name || "Unknown place");
-
+    
     // pluscode + map (encode "+" as %2B for URL use)
     const pluscode = (d.location || "").trim();
     setText("locationPlus", pluscode);

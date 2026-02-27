@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+<!-- Google tag (gtag.js) -->
+<!--   <script async src="https://www.googletagmanager.com/gtag/js?id=G-xxyyzz"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-xxyyzz');
+  </script> -->
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ecowitt Dashboard</title>
@@ -17,133 +27,133 @@
   <script src="/vendor/chartjs/chart.umd.min.js"></script>
 
   <link rel="stylesheet" href="/css/style.css">
+
+  <!-- Cookies & Privacy -->
+  <!-- <script type="text/javascript" src="https://embeds.iubenda.com/widgets/09555730-9761-46d8-8a6d-f295390019a3.js"></script> -->
+
 </head>
 
-<body>
-  <div class="container-fluid p-3">
-
-    <div class="dashboard-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center px-3 py-2">
-      <div>
-        <h2 class="mb-0 text-light">
-          <i class="fa-solid fa-cloud-sun me-2"></i>Ecowitt Dashboard
-        </h2>
-      </div>
-    </div>
-
-    <!-- ROW 1: 4 CARDS -->
-    <div class="row g-3">
-
-      <!-- LOCATION + TIME -->
-      <div class="col-12 col-md-6 col-xl-12">
-        <div class="card ecocard">
-          <div class="card-body">
-
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center text-light gap-2">
-              <div class="d-flex flex-row flex-md-column align-items-center gap-3">
-                <div class="data-value" id="locationName">--</div>
-                <div class="text-secondary" id="locationPlus">--</div>
-                <div class="text-center text-secondary">
-                  <i class="fa-solid fa-clock me-1"></i><span id="timeValue">--</span>
-                </div>
-              </div>
-              
-              <div class="col-xl-8 col-md-6 col-sm-12 map-wrap">
-                <iframe id="locationMap" title="Location Map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="--" data-last="--">
-                </iframe>
-              </div>
-            </div>
-
-            <!-- MAP -->
-            
-          </div>
+  <body>
+    <div class="container-fluid p-3">
+      <div class="dashboard-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center px-3 py-2">
+        <div>
+          <h2 class="mb-0 text-light">
+            <i class="fa-solid fa-cloud-sun me-2"></i>Ecowitt Dashboard
+          </h2>
         </div>
       </div>
 
-      <!-- TEMP + HUM -->
-      <div class="col-12 col-md-6 col-xl-4">
-        <div class="card ecocard">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="text-light">
-                <span id="tempBadge" class="badge bg-success text-light">Temp</span><i class="fa-solid fa-temperature-half ms-3"></i>
-                <div class="d-flex align-items-center gap-2">
-                  <div id="tempValue" class="data-value">--</div>
-                  <div id="tempTrend" class="trend-icon trend-same"><i class="fa-solid fa-minus"></i></div>
-                </div>
-              </div>
+     <!-- ROW 1: 4 CARDS -->
+      <div class="row g-3">
 
-              <div class="text-end text-light">
-                <i class="fa-solid fa-droplet me-2"></i>
-                <span id="humBadge" class="badge bg-info text-dark ms-1">Hum</span><div class="d-flex align-items-center justify-content-end gap-2">
-                  <div id="humValue" class="data-value">--</div>
-                  <div id="humTrend" class="trend-icon trend-same"><i class="fa-solid fa-minus"></i></div>
+        <!-- LOCATION + TIME -->
+        <div class="col-12 col-md-6 col-xl-12">
+          <div class="card ecocard">
+            <div class="card-body">
+              <div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center text-light gap-2">
+                <div class="d-flex flex-row flex-md-column align-items-center gap-3">
+                  <div class="data-value" id="locationName">--</div>
+                  <div class="text-secondary" id="locationPlus">--</div>
+                  <div class="text-center text-secondary">
+                    <i class="fa-solid fa-clock me-1"></i><span id="timeValue">--</span>
+                  </div>
+                </div>
+
+                <!-- MAP -->            
+                <div class="col-xl-8 col-md-6 col-sm-12 map-wrap">
+                  <iframe id="locationMap" title="Location Map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="--" data-last="--">
+                  </iframe>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- WIND -->
-
-      <div class="col-12 col-md-6 col-xl-4">
-        <div class="card ecocard">
-          <div class="card-body">
-            <div class="d-flex justify-content-between">
-              <div class="text-light">
-                <span id="windBadge" class="badge bg-light text-dark">Wind</span>
-                <i class="fa-solid fa-wind ms-3"></i>
-                <div class="d-flex align-items-center gap-2">
-                  <div id="windValue" class="data-value">--</div>
-                  <div id="windTrend" class="trend-icon trend-same"><i class="fa-solid fa-minus"></i></div>
+        <!-- TEMP + HUM -->
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="card ecocard">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="text-light">
+                  <span id="tempBadge" class="badge bg-success text-light">Temp</span><i class="fa-solid fa-temperature-half ms-3"></i>
+                  <div class="d-flex align-items-center gap-2">
+                    <div id="tempValue" class="data-value">--</div>
+                    <div id="tempTrend" class="trend-icon trend-same"><i class="fa-solid fa-minus"></i></div>
+                  </div>
                 </div>
-              </div>
 
-              <div class="d-flex flex-column text-center text-light">
-                <i id="windArrow" class="fa-solid fa-arrow-up wind-arrow text-light" style="transform: rotate(51deg);"></i>
-                <span id="windCardinal">--</span>
-              </div>
-            </div>
-          </div><!-- cardbody -->
-        </div><!-- ecocard -->
-      </div><!-- container wind -->
-
-      <!-- PRESSURE -->
-      <div class="col-12 col-md-6 col-xl-4">
-        <div class="card ecocard">
-          <div class="card-body">
-            <div class="d-flex justify-content-center align-items-center">
-              <div class="text-light">
-                <span id="pressureBadge" class="badge bg-success text-light">Pressure</span>
-                <i class="fa-solid fa-gauge-high ms-3"></i>
-                <div class="d-flex align-items-center gap-2">
-                  <div id="pressureValue" class="data-value">--</div>
-                  <div id="pressureTrend" class="trend-icon trend-same"><i class="fa-solid fa-minus"></i></div>
+                <div class="text-end text-light">
+                  <i class="fa-solid fa-droplet me-2"></i>
+                  <span id="humBadge" class="badge bg-info text-dark ms-1">Hum</span><div class="d-flex align-items-center justify-content-end gap-2">
+                    <div id="humValue" class="data-value">--</div>
+                    <div id="humTrend" class="trend-icon trend-same"><i class="fa-solid fa-minus"></i></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-    <!-- TEMP + WIND CHARTS (TOP) -->
-    <div class="col-12 col-lg-6">
+        <!-- WIND -->
+
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="card ecocard">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div class="text-light">
+                  <span id="windBadge" class="badge bg-light text-dark">Wind</span>
+                  <i class="fa-solid fa-wind ms-3"></i>
+                  <div class="d-flex align-items-center gap-2">
+                    <div id="windValue" class="data-value">--</div>
+                    <div id="windTrend" class="trend-icon trend-same"><i class="fa-solid fa-minus"></i></div>
+                  </div>
+                </div>
+
+                <div class="d-flex flex-column text-center text-light">
+                  <i id="windArrow" class="fa-solid fa-arrow-up wind-arrow text-light" style="transform: rotate(51deg);"></i>
+                  <span id="windCardinal">--</span>
+                </div>
+              </div>
+            </div><!-- cardbody -->
+          </div><!-- ecocard -->
+        </div><!-- container wind -->
+
+        <!-- PRESSURE -->
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="card ecocard">
+            <div class="card-body">
+              <div class="d-flex justify-content-center align-items-center">
+                <div class="text-light">
+                  <span id="pressureBadge" class="badge bg-success text-light">Pressure</span>
+                  <i class="fa-solid fa-gauge-high ms-3"></i>
+                  <div class="d-flex align-items-center gap-2">
+                    <div id="pressureValue" class="data-value">--</div>
+                    <div id="pressureTrend" class="trend-icon trend-same"><i class="fa-solid fa-minus"></i></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <!-- TEMP + WIND CHARTS (TOP) -->
+      <div class="col-12 col-lg-6">
         <div class="card ecocard">
           <div class="card-body">
             <div class="card-title">
-              <i class="fa-solid fa-chart-line me-2"></i>Temperature / Humidity
-            </div>
+              <i class="fa-solid fa-chart-line me-2"></i>Temperature / Humidity</div>
             <div class="chart-box mt-3">
               <canvas id="tempChart" width="922" height="560" style="display: block; box-sizing: border-box; height: 280px; width: 461px;"></canvas>
             </div>
           </div>
         </div>
-      </div><div class="col-12 col-lg-6">
+      </div>
+        
+      <div class="col-12 col-lg-6">
         <div class="card ecocard">
           <div class="card-body">
             <div class="card-title">
-              <i class="fa-solid fa-chart-line me-2"></i>Wind / Direction
-            </div>
+              <i class="fa-solid fa-chart-line me-2"></i>Wind / Direction</div>
             <div class="chart-box mt-3">
               <canvas id="windChart" width="922" height="560" style="display: block; box-sizing: border-box; height: 280px; width: 461px;"></canvas>
             </div>
@@ -151,8 +161,8 @@
         </div>
       </div>
 
-    <!-- ROW 3: RAIN + SOLAR -->
-<div class="col-12 col-md-6">
+      <!-- ROW 3: RAIN + SOLAR -->
+      <div class="col-12 col-md-6">
         <div class="card ecocard">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
@@ -162,48 +172,39 @@
               <i class="fa-solid fa-cloud-showers-heavy icon-big"></i>
             </div>
 
-              <div class="mt-3 rain-grid">
-
+            <div class="mt-3 rain-grid">
               <div>
                 <div class="rain-grid-label">rainrate</div>
                 <div id="rainratein" class="rain-grid-value">--</div>
               </div>
-              
               <div>
                 <div class="rain-grid-label">event</div>
                 <div id="eventrainin" class="rain-grid-value">--</div>
               </div>
-
               <div>
                 <div class="rain-grid-label">hourly</div>
                 <div id="hourlyrainin" class="rain-grid-value">--</div>
               </div>
-
               <div>
                 <div class="rain-grid-label">last 24h</div>
                 <div id="last24hrainin" class="rain-grid-value">--</div>
               </div>
-              
               <div>
                 <div class="rain-grid-label">daily</div>
                 <div id="dailyrainin" class="rain-grid-value">--</div>
               </div>
-
               <div>
                 <div class="rain-grid-label">weekly</div>
                 <div id="weeklyrainin" class="rain-grid-value">--</div>
               </div>
-
               <div>
                 <div class="rain-grid-label">monthly</div>
                 <div id="monthlyrainin" class="rain-grid-value">--</div>
               </div>
-
               <div>
                 <div class="rain-grid-label">yearly</div>
                 <div id="yearlyrainin" class="rain-grid-value">--</div>
               </div>
-
             </div>
 
             <div class="chart-box mt-3">
@@ -211,13 +212,15 @@
             </div>
           </div>
         </div>
-      </div><div class="col-12 col-md-6">
-          <div class="card ecocard">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="card-title">
-                  <i class="fa-solid fa-sun me-2"></i>Solar Radiation / UV
-                </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <div class="card ecocard">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+
+              <div class="card-title">
+                <i class="fa-solid fa-sun me-2"></i>Solar Radiation / UV</div>
                 <i class="fa-solid fa-sun icon-big"></i>
               </div>
 
@@ -249,18 +252,34 @@
           </div>
         </div>
     
-    <!-- FOOTER -->
-    <div class="col-12 col-md-12 col-xl-12 text-center card ecocard">
-        <div class="card-body">
-          <h6 class="font-monospace text-light d-flex flex-row justify-content-center m-0 mt-2">
-            <p>EcoWitt Dashboard - 2026 </p>
-            <a href="https://github.com/arkanet/ecowitt-meshtastic/" class="text-decoration-none text-light ps-2" target="_blank">ArkaNet</a>
-          </h6>
+        <!-- FOOTER -->
+        <div class="col-12 col-md-12 col-xl-12 text-center card ecocard">
+          <!-- copyright -->
+          <div class="d-flex flex-row align-items-baseline justify-content-center">
+            <div class="my-2">
+              <h6 class="font-monospace text-light d-flex flex-row justify-content-center m-0">
+                <p class="m-0">EcoWitt Dashboard - 2026 </p>
+                <a href="https://github.com/arkanet/ecowitt-meshtastic/" class="text-decoration-none text-light ps-2" target="_blank" data-cmp-ab="2">ArkaNet</a>
+              </h6>
+            </div>
+          </div><!-- copyright -->
+
+          <!-- <div class="d-flex flex-row align-items-baseline justify-content-between"> -->
+
+            <!-- Privacy Policy -->
+            <!-- <div class="my-2"> -->
+              <!-- iubenda -->
+            <!-- </div> -->
+
+            <!-- Cookie Policy -->
+            <!-- <div class="my-2"> -->
+              <!-- iubenda -->
+            <!-- </div> -->
+          <!-- </div> -->
         </div>
       </div>
-  </div>
 
-  <script src="/vendor/bootstrap/bootstrap.bundle.min.js"></script>
-  <script src="/js/dashboard.js"></script>
-</body>
+      <script src="/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+      <script src="/js/dashboard.js"></script>
+  </body>
 </html>
