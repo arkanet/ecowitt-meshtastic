@@ -172,6 +172,7 @@ const rainChart = makeLineChart("rainChart",
 const sunChart = makeLineChart("sunChart",
   [
     { label: "Solar (live) W/m²", data: [], borderWidth: 2, tension: 0.25, yAxisID: "yS" },
+    { label: "Solar (24h) W/m²", data: [], borderWidth: 2, tension: 0.25, yAxisID: "yS" },
     { label: "UV (live)", data: [], borderWidth: 2, tension: 0.25, yAxisID: "yU" },
     { label: "UV (24h)", data: [], borderWidth: 2, tension: 0.25, yAxisID: "yU" },
   ],
@@ -296,8 +297,9 @@ async function refresh() {
 
     // Solar chart datasets
     sunChart.data.datasets[0].data = live.sr;
-    sunChart.data.datasets[1].data = live.uv;
-    sunChart.data.datasets[2].data = seriesFromHistory("uv");
+    sunChart.data.datasets[1].data = seriesFromHistory("solarradiation");
+    sunChart.data.datasets[2].data = live.uv;
+    sunChart.data.datasets[3].data = seriesFromHistory("uv");
 
     tempChart.update("none");
     windChart.update("none");
