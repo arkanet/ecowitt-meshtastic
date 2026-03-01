@@ -8,10 +8,8 @@ import meshtastic.serial_interface
 # CONFIG
 # =========================
 SERVER_API = "http://127.0.0.1:8080/api/latest"
-
 SERIAL_PORT = "/dev/ttyUSB0"
 CHANNEL_INDEX = 0
-
 LOGFILE = "./meshtastic_send.log"
 
 # =========================
@@ -38,10 +36,17 @@ def safe_float(val):
     except:
         return 0.0
 
-def deg_to_cardinal(deg):
-    dirs = ["N","NE","E","SE","S","SW","W","NW"]
+def safe_int(val):
     try:
-        return dirs[int((deg + 22.5) / 45) % 8]
+        return int(round(float(val), 0))
+    except:
+        return 0
+
+def deg_to_cardinal_16(deg):
+    dirs = ["N","NNE","NE","ENE","E","ESE","SE","SSE",
+            "S","SSW","SW","WSW","W","WNW","NW","NNW"]
+    try:
+        return dirs[int((float(deg) + 11.25) / 22.5) % 16]
     except:
         return "--"
 
@@ -57,27 +62,31 @@ def fetch_latest():
 # BUILD TEXT REPORT
 # =========================
 def build_report(d):
+
     location = d.get("location", "UNKNOWN")
     t = d.get("time", "--:--:--")
 
     temperature = safe_float(d.get("temperature"))
-    humidity = safe_float(d.get("humidity"))
-    windspeed = safe_float(d.get("windspeed"))
-    winddir = safe_float(d.get("winddir"))
-    pressure = safe_float(d.get("pressure"))
-    sunlight = safe_float(d.get("sunlight"))
-    rain = safe_float(d.get("rain"))
+    humidity = safe_int(d.get("humidity"))
+    windspeed = safe_float(d.get("windspeed"))       # km/h
+    winddir = safe_float(d.get("winddir"))           # deg
+    pressure = safe_float(d.get("pressure"))         # hPa
 
-    wind_cardinal = deg_to_cardinal(winddir)
+    solarradiation = safe_float(d.get("solarradiation"))  # W/m²
+    uv = safe_float(d.get("uv"))                           # UV index
+
+    rain_mm = d.get("rain_mm") or {}
+    rainrate = safe_float(rain_mm.get("rainrate"))         # mm/h (già convertito nel server)
+
+    wind_cardinal = deg_to_cardinal_16(winddir)
 
     # 4 righe
     report = (
-        f"Map: {location}\n"
-        f"{t}  T: {temperature:.1f}°C  H: {humidity:.0f}%\n"
-        f"W: {windspeed:.1f} km/h ({wind_cardinal})  R: {rain:.2f} mm/h\n"
-        f"P: {pressure:.0f} hPa  SR: {sunlight:.0f} W/m²"
+        f"Map: {location} {t}\n"
+        f"T: {temperature:.1f}°C  H: {humidity:d}%  UV: {uv:.1f}\n"
+        f"W: {windspeed:.1f} km/h ({wind_cardinal})  R: {rainrate:.2f} mm/h\n"
+        f"P: {pressure:.0f} hPa  SR: {solarradiation:.0f} W/m²"
     )
-
     return report
 
 # =========================
@@ -85,8 +94,10 @@ def build_report(d):
 # =========================
 def send_meshtastic_text(report):
     iface = meshtastic.serial_interface.SerialInterface(devPath=SERIAL_PORT)
-    iface.sendText(report, channelIndex=CHANNEL_INDEX)
-    iface.close()
+    try:
+        iface.sendText(report, channelIndex=CHANNEL_INDEX)
+    finally:
+        iface.close()
 
 # =========================
 # MAIN
@@ -94,7 +105,7 @@ def send_meshtastic_text(report):
 if __name__ == "__main__":
     try:
         d = fetch_latest()
-        logger.info(f"Dati ricevuti da server: {d}")
+        logger.info("Dati ricevuti da server OK")
 
         report = build_report(d)
         logger.info(f"Report generato:\n{report}")
@@ -104,4 +115,4 @@ if __name__ == "__main__":
 
     except Exception as e:
         logger.error(f"[ERROR] Invio fallito: {e}")
-
+        raise
