@@ -82,10 +82,10 @@ def build_report(d):
 
     # 4 righe
     report = (
-        f"Map: {location} {t}\n"
-        f"T: {temperature:.1f}°C  H: {humidity:d}%  UV: {uv:.1f}\n"
+        f"Map:{location}  {t}\n"
+        f"T: {temperature:.1f}°C  H: {humidity:d}%  P: {pressure:.0f} hPa\n"
         f"W: {windspeed:.1f} km/h ({wind_cardinal})  R: {rainrate:.2f} mm/h\n"
-        f"P: {pressure:.0f} hPa  SR: {solarradiation:.0f} W/m²"
+        f"SR: {solarradiation:.0f}  W/m² UV: {uv:.1f}"
     )
     return report
 
