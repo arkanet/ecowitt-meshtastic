@@ -55,7 +55,15 @@ def _set_first_field(obj, candidates, value):
                 setattr(obj, name, value)
                 return True
             except Exception:
-                pass
+                try:
+                    setattr(obj, name, int(round(float(value), 0)))
+                    return True
+                except Exception:
+                    try:
+                        setattr(obj, name, float(value))
+                        return True
+                    except Exception:
+                        pass
     return False
 
 def fetch_latest():
@@ -101,20 +109,55 @@ def try_set_env_fields(env_obj, d):
     ) or ok
 
     # anemometro: velocità, direzione, raffica
+    windspeed_kmh = safe_float(d.get("windspeed"))
+    windspeed_mps = windspeed_kmh / 3.6
+    windgust_kmh = safe_float(d.get("windgust"))
+    windgust_mps = windgust_kmh / 3.6
+
+    # velocità vento
     ok = _set_first_field(
         env_obj,
-        ["wind_speed", "wind_speed_kmh", "windspeed", "windspeed_kmh"],
-        safe_float(d.get("windspeed")),
+        [
+            "wind_speed_kmh", "windspeed", "windspeed_kmh",
+        ],
+        windspeed_kmh,
     ) or ok
     ok = _set_first_field(
         env_obj,
-        ["wind_direction", "wind_direction_deg", "winddir", "wind_dir"],
+        [
+            "wind_speed", "windSpeed",
+            "wind_speed_m_s", "wind_speed_ms", "wind_m_s",
+            "windspeed_mps", "windSpeedMps",
+        ],
+        windspeed_mps,
+    ) or ok
+
+    # direzione vento in gradi
+    ok = _set_first_field(
+        env_obj,
+        [
+            "wind_direction", "windDirection",
+            "wind_direction_deg", "wind_direction_degrees",
+            "winddir", "wind_dir",
+            "wind_bearing", "wind_bearing_deg",
+        ],
         safe_float(d.get("winddir")),
     ) or ok
+
+    # raffica vento
     ok = _set_first_field(
         env_obj,
-        ["wind_gust", "wind_gust_kmh", "gust", "gust_kmh"],
-        safe_float(d.get("windgust")),
+        ["wind_gust_kmh", "gust", "gust_kmh"],
+        windgust_kmh,
+    ) or ok
+    ok = _set_first_field(
+        env_obj,
+        [
+            "wind_gust", "windGust",
+            "wind_gust_m_s", "wind_gust_ms",
+            "gust_mps", "gust_m_s",
+        ],
+        windgust_mps,
     ) or ok
 
     return ok
@@ -171,7 +214,7 @@ def build_custom_weather_payload(d):
         "uv": safe_float(d.get("uv")),
         "sr_wm2": safe_float(d.get("solarradiation")),
 
-        # opzionali utili (non sono vento, e aiutano debug/coerenza)
+        # opzionali utili per debug
         "t_c": safe_float(d.get("temperature")),
         "h_pct": safe_float(d.get("humidity")),
         "p_hpa": safe_float(d.get("pressure")),
@@ -181,7 +224,7 @@ def build_custom_weather_payload(d):
         "ts": d.get("time", "--:--:--"),
     }
 
-    # JSON compatto (meno byte in LoRa)
+    # JSON compatto
     return json.dumps(payload, separators=(",", ":")).encode("utf-8"), payload
 
 def build_debug_text(payload_dict):
@@ -200,10 +243,10 @@ def main():
     d = fetch_latest()
     logger.info("Fetched latest OK")
 
-    # 1) Telemetry standard (se possibile)
+    # 1) Telemetry standard
     telemetry_payload = build_telemetry_payload_if_possible(d, telemetry_pb2)
 
-    # 2) Custom meteo extra (sempre) - include anche anemometro
+    # 2) Custom meteo extra include anche anemometro
     custom_bytes, custom_dict = build_custom_weather_payload(d)
     custom_port, custom_port_name = pick_custom_port(portnums_pb2)
 
