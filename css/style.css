@@ -80,5 +80,24 @@ body { background-color: #111; color: #eee; }
 .dashboard-header + * {
   margin-top: 0.75rem;
 }
-@media (max-width: 1200px) { .rain-grid { grid-template-columns: repeat(4, 1fr); } }
-@media (max-width: 768px) { .rain-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 1200px) {
+  .rain-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (max-width: 768px) { 
+  .rain-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .footer-link {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: .25rem !important;
+  }
+  h1{
+    font-size: 1.25rem !important;
+  }
+  .data-value{
+    font-size: 1rem !important;
+  }
+}
